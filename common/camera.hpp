@@ -49,4 +49,8 @@ public:
 	void calculateMatrices();
 	void calculateCameraVectors();
 	void quaternionCamera(bool thirdCamera);
+
+private:
+	glm::mat4 calculateViewMatrix();
+	glm::mat4 calculatePerspective();
 };

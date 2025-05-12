@@ -283,6 +283,9 @@ int main(void)
                 camera.jumping = false;
             }
         }
+
+        //Different camera calcuations
+        //camera.calculateMatrices();
         camera.quaternionCamera(thirdCamera);
 
         // Activate shader

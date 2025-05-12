@@ -12,12 +12,13 @@ void Camera::calculateMatrices()
 	calculateCameraVectors();
 
 	//Calculate view matrix
-	view = glm::lookAt(eye, eye + front, worldUp);
+	//view = glm::lookAt(eye, target, worldUp);
+	view = calculateViewMatrix();
 
 	//Calculate projection matrix
-	projection = glm::perspective(fov, aspect, near, far);
+	//projection = glm::perspective(fov, aspect, near, far);
+	projection = calculatePerspective();
 }
-
 
 void Camera::calculateCameraVectors()
 {
@@ -46,7 +47,8 @@ void Camera::quaternionCamera(bool thirdCamera)
 	}
 
 	// Calculate the projection matrix
-	projection = glm::perspective(fov, aspect, near, far);
+	//projection = glm::perspective(fov, aspect, near, far);
+	projection = calculatePerspective();
 
 	// Calculate camera vectors from view matrix
 	right = glm::vec3(view[0][0], view[1][0], view[2][0]);
@@ -54,4 +56,39 @@ void Camera::quaternionCamera(bool thirdCamera)
 	front = -glm::vec3(view[0][2], view[1][2], view[2][2]);
 }
 
+glm::mat4 Camera::calculateViewMatrix()
+{
+	glm::mat4 translate; 
+	glm::mat4 rotate;
+	translate[0][3] = -eye.x;
+	translate[1][3] = -eye.y;
+	translate[2][3] = -eye.z;
+
+	rotate[0][0] = right.x;
+	rotate[0][1] = right.y;
+	rotate[0][2] = right.z;
+	rotate[1][0] = up.x;
+	rotate[1][1] = up.y;
+	rotate[1][2] = up.z;
+	rotate[2][0] = -front.x;
+	rotate[2][1] = -front.y;
+	rotate[2][2] = -front.z;
+
+	return glm::transpose(translate*rotate);
+}
+
+glm::mat4 Camera::calculatePerspective()
+{
+	float top = near * tan(fov / 2);
+	float pRight = aspect * top;
+	glm::mat4 perspective;
+	perspective[0][0] = near/pRight;
+	perspective[1][1] = near/top;
+	perspective[2][2] = -((far+near)/(far-near));
+	perspective[2][3] = -1;
+	perspective[3][2] = -((2*far*near)/(far-near));
+	perspective[3][3] = 0;
+
+	return perspective;
+}
 
