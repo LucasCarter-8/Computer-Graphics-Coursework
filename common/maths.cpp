@@ -91,14 +91,59 @@ glm::mat4 Maths::scale(const glm::vec3& v)
     return scale;
 }
 
+glm::mat4 Maths::transpose(const glm::mat4& m)
+{
+    glm::mat4 transposedMatrix;
+    transposedMatrix[0][0] = m[0][0];
+    transposedMatrix[0][1] = m[1][0];
+    transposedMatrix[0][2] = m[2][0];
+    transposedMatrix[0][3] = m[3][0];
+
+    transposedMatrix[1][0] = m[0][1];
+    transposedMatrix[1][1] = m[1][1];
+    transposedMatrix[1][2] = m[2][1];
+    transposedMatrix[1][3] = m[3][1];
+
+    transposedMatrix[2][0] = m[0][2];
+    transposedMatrix[2][1] = m[1][2];
+    transposedMatrix[2][2] = m[2][2];
+    transposedMatrix[2][3] = m[3][2];
+
+    transposedMatrix[3][0] = m[0][3];
+    transposedMatrix[3][1] = m[1][3];
+    transposedMatrix[3][2] = m[2][3];
+    transposedMatrix[3][3] = m[3][3];
+    return transposedMatrix;
+}
+
 float Maths::radians(float angle)
 {
     return angle * 3.1416f / 180.0;
 }
 
+float Maths::length(const glm::vec3& v)
+{  
+    return sqrtf(powf(v.x, 2) + powf(v.y, 2) + powf(v.z, 2));
+}
+
+glm::vec3 Maths::normalize(const glm::vec3& v)
+{
+    return v / Maths::length(v);
+}
+
+float Maths::dot(const glm::vec3& v1, const glm::vec3& v2)
+{
+    return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+}
+
+glm::vec3 Maths::cross(const glm::vec3& v1, const glm::vec3& v2)
+{
+    return glm::vec3(v1.y*v2.z - v1.z*v2.y, v1.z*v2.x - v1.x*v2.z, v1.x*v2.y - v1.y*v2.x);
+}
+
 glm::mat4 Maths::rotate(const float& angle, glm::vec3& v)
 {
-    v = glm::normalize(v);
+    v = Maths::normalize(v);
     float c = cos(0.5f * angle);
     float s = sin(0.5f * angle);
     Quaternion q(c, s * v.x, s * v.y, s * v.z);

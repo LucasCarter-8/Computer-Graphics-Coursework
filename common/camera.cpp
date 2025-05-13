@@ -24,10 +24,9 @@ void Camera::calculateCameraVectors()
 {
 	if (!jumping)
 		eye.y = 0;
-
 	front = glm::vec3(cos(yaw) * cos(pitch), sin(pitch), sin(yaw) * cos(pitch));
-	right = glm::normalize(glm::cross(front, worldUp));
-	up = glm::cross(right, front);
+	right = Maths::normalize(Maths::cross(front, worldUp));
+	up = Maths::cross(right, front);
 }
 void Camera::quaternionCamera(bool thirdCamera)
 {
@@ -74,7 +73,7 @@ glm::mat4 Camera::calculateViewMatrix()
 	rotate[2][1] = -front.y;
 	rotate[2][2] = -front.z;
 
-	return glm::transpose(translate*rotate);
+	return Maths::transpose(translate*rotate);
 }
 
 glm::mat4 Camera::calculatePerspective()

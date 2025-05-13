@@ -30,9 +30,19 @@ public:
 
     static glm::mat4 scale(const glm::vec3& v);
 
+    static glm::mat4 transpose(const glm::mat4& v);
+
     static float Maths::radians(float angle);
 
     static float Maths::clamp(float a, float min, float max);
 
     static glm::mat4 rotate(const float& angle, glm::vec3& v);
+
+    static float Maths::length(const glm::vec3& v);
+
+    static glm::vec3 Maths::normalize(const glm::vec3& v);
+
+    static float Maths::dot(const glm::vec3& v1, const glm::vec3& v2);
+
+    static glm::vec3 Maths::cross(const glm::vec3& v1, const glm::vec3& v2);
 };

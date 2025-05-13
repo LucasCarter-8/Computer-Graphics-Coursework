@@ -11,9 +11,20 @@
 #include <common/model.hpp>
 #include <common/light.hpp>
 
+// Object struct
+struct Object
+{
+    glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
+    glm::vec3 rotation = glm::vec3(0.0f, 1.0f, 0.0f);
+    glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    float angle = 0.0f;
+    std::string name;
+};
+
 // Function prototypes
 void keyboardInput(GLFWwindow* window);
 void mouseInput(GLFWwindow* window);
+void checkCollision(Camera& camera, Object& obj1);
 
 // Frame timers
 float previousTime = 0.0f;  // time of previous iteration of the loop
@@ -24,15 +35,9 @@ Camera camera(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 //3D Camera bool
 bool thirdCamera = false;
 
-// Object struct
-struct Object
-{
-    glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f);
-    glm::vec3 rotation = glm::vec3(0.0f, 1.0f, 0.0f);
-    glm::vec3 scale = glm::vec3(1.0f, 1.0f, 1.0f);
-    float angle = 0.0f;
-    std::string name;
-};
+
+
+
 
 int main(void)
 {
@@ -100,20 +105,6 @@ int main(void)
     // Activate shader
     glUseProgram(shaderID);
 
-    // Load models
-    Model teapot("../assets/teapot.obj");
-    Model sphere("../assets/sphere.obj");
-
-    // Load the textures
-    teapot.addTexture("../assets/blue.bmp", "diffuse");
-    teapot.addTexture("../assets/diamond_normal.png", "normal");
-    teapot.addTexture("../assets/neutral_specular.png", "specular");
-
-    // Define teapot object lighting properties
-    teapot.ka = 0.2f;
-    teapot.kd = 0.7f;
-    teapot.ks = 1.0f;
-    teapot.Ns = 20.0f;
 
     // Add light sources
     Light lightSources;
@@ -132,7 +123,24 @@ int main(void)
         std::cos(Maths::radians(45.0f)));     // cos(phi)
 
     //lightSources.addDirectionalLight(glm::vec3(1.0f, -1.0f, 0.0f),  // direction
-                                     //glm::vec3(1.0f, 1.0f, 1.0f));  // colour
+    //                                 glm::vec3(1.0f, 1.0f, 1.0f));  // colour
+
+
+    // Load models
+    Model teapot("../assets/teapot.obj");
+    Model sphere("../assets/sphere.obj");
+
+    // Load the textures
+    teapot.addTexture("../assets/blue.bmp", "diffuse");
+    teapot.addTexture("../assets/diamond_normal.png", "normal");
+    teapot.addTexture("../assets/neutral_specular.png", "specular");
+
+    // Define teapot object lighting properties
+    teapot.ka = 0.2f;
+    teapot.kd = 0.7f;
+    teapot.ks = 1.0f;
+    teapot.Ns = 20.0f;
+
 
     // Teapot positions
     glm::vec3 teapotPositions[] = {
@@ -155,7 +163,7 @@ int main(void)
     for (unsigned int i = 0; i < 10; i++)
     {
         object.position = teapotPositions[i];
-        object.rotation = glm::vec3(1.0f, 1.0f, 1.0f);
+        object.rotation = glm::vec3(0.0f, 1.0f, 0.0f);
         object.scale = glm::vec3(0.25f, 0.25f, 0.25f);
         object.angle = Maths::radians(40.0f);
         objects.push_back(object);
@@ -254,7 +262,6 @@ int main(void)
     object.angle = 0.0f;
     objects.push_back(object);
 
-
     // Render loop
     while (!glfwWindowShouldClose(window))
     {
@@ -284,8 +291,10 @@ int main(void)
             }
         }
 
-        //Different camera calcuations
+        //Non-Quaternion
         //camera.calculateMatrices();
+         
+        //Quaternion 
         camera.quaternionCamera(thirdCamera);
 
         // Activate shader
@@ -302,7 +311,15 @@ int main(void)
             glm::mat4 scale = Maths::scale(objects[i].scale);
             glm::mat4 rotate;
             if (objects[i].name == "teapot")
-            {
+            { 
+                if (glm::distance(camera.eye, objects[i].position) <= 2)
+                {
+                    objects[i].angle = Maths::radians(50.0f);
+                }
+                else
+                {
+                    objects[i].angle = 0.0f;
+                }
                 rotate = Maths::rotate(objects[i].angle * glfwGetTime(), objects[i].rotation);
             }
             else if (objects[i].name == "player" && thirdCamera)
@@ -340,7 +357,7 @@ int main(void)
                 objects[i].position = camera.eye - glm::vec3(0.0f, 0.5f, 0.0f);
                 teapot.draw(shaderID);
             }
-
+            checkCollision(camera, objects[i]);
         }
 
         // Draw light sources
@@ -408,4 +425,29 @@ void mouseInput(GLFWwindow* window)
     camera.calculateCameraVectors();
 
 }
+
+void checkCollision(Camera& camera, Object& obj1)
+{
+    float offset = 0.1;
+    if (glm::distance(camera.eye, obj1.position) < 1)
+    {
+        if (camera.eye.x < obj1.position.x)
+        {
+            camera.eye.x -= offset;
+        }
+        if (camera.eye.x > obj1.position.x)
+        {
+            camera.eye.x += offset;
+        }
+        if (camera.eye.z < obj1.position.z)
+        {
+            camera.eye.z -= offset;
+        }
+        if (camera.eye.z > obj1.position.z)
+        {
+            camera.eye.z += offset;
+        }
+    };
+
+};
 

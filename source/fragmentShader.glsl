@@ -103,7 +103,7 @@ vec3 pointLight(vec3 lightPosition, vec3 lightColour,
     float distance    = length(lightPosition - fragmentPosition);
     float attenuation = 1.0 / (constant + linear * distance +
                                quadratic * distance * distance);
-    
+
     // Fragment colour
     return (ambient + diffuse + specular) * attenuation;
 }
