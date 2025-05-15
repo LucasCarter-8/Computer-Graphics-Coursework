@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cmath>
+#include <random>
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -34,8 +35,9 @@ float deltaTime = 0.0f;  // time elapsed since the previous frame
 Camera camera(glm::vec3(0.0f, 0.0f, 5.0f), glm::vec3(0.0f, 0.0f, 0.0f));
 //3D Camera bool
 bool thirdCamera = false;
+bool fourthCamera = false;
 
-
+float playerYaw = 0.0f;
 
 
 
@@ -146,21 +148,21 @@ int main(void)
 
     // Add light sources
     Light lightSources;
-    lightSources.addPointLight(glm::vec3(-5.07f, 0.4f, 0.22f),         // position
+    lightSources.addPointLight("blueLight", glm::vec3(-5.07f, 0.4f, 0.22f),         // position
         glm::vec3(0.0f, 0.0f, 1.0f),         // colour
         1.0f, 0.1f, 0.02f);                  // attenuation
 
-    lightSources.addPointLight(glm::vec3(-4.4f, 0.4f, 0.22f),        // position
+    lightSources.addPointLight("redLight", glm::vec3(-4.4f, 0.4f, 0.22f),        // position
         glm::vec3(1.0f, 0.0f, 0.0f),         // colour
         1.0f, 0.1f, 0.02f);                  // attenuation
 
-    lightSources.addSpotLight(glm::vec3(3.8f, 3.1f, -0.17f),          // position
+    lightSources.addSpotLight("streetLight", glm::vec3(3.8f, 3.1f, -0.17f),          // position
         glm::vec3(0.0f, -1.0f, 0.0f),         // direction
         glm::vec3(1.0f, 1.0f, 0.0f),          // colour
         1.0f, 0.1f, 0.02f,                    // attenuation
         std::cos(Maths::radians(45.0f)));     // cos(phi)
 
-    lightSources.addDirectionalLight(glm::vec3(1.0f, -1.0f, 0.0f),  // direction
+    lightSources.addDirectionalLight("sun", glm::vec3(1.0f, -1.0f, 0.0f),  // direction
                                      glm::vec3(1.0f, 1.0f, 1.0f));  // colour
 
 
@@ -182,24 +184,29 @@ int main(void)
 
     // Teapot positions
     glm::vec3 teapotPositions[] = {
-        glm::vec3(0.0f,  0.0f,  3.0f),
-        glm::vec3(0.0f,  0.0f, 2.0f),
-        glm::vec3(0.0f, 0.0f, 1.0f),
-        glm::vec3(0.0f, 0.0f, 0.0f),
+        glm::vec3(-4.0f,-0.2f, -5.0f),
+        glm::vec3(-2.0f,-0.2f, -5.0f),
+        glm::vec3(2.0f, -0.2f, -5.0f),
     };
 
     // Add teapots to objects vector
     std::vector<Object> objects;
     Object object;
     object.name = "teapot";
-    for (unsigned int i = 0; i < teapotPositions->length(); i++)
+    for (unsigned int i = 0; i <= teapotPositions->length(); i++)
     {
         object.position = teapotPositions[i];
         object.rotation = glm::vec3(0.0f, 1.0f, 0.0f);
         object.scale = glm::vec3(0.25f, 0.25f, 0.25f);
-        object.angle = Maths::radians(40.0f);
+        object.angle = Maths::radians(0.0f);
         objects.push_back(object);
     }
+    object.name = "specialTeapot";
+    object.position = glm::vec3(0.0f, -0.2f, -5.0f);
+    object.rotation = glm::vec3(0.0f, 1.0f, 0.0f);
+    object.scale = glm::vec3(0.25f, 0.25f, 0.25f);
+    object.angle = Maths::radians(40.0f);
+    objects.push_back(object);
 
     // Load the textures
    cube.addTexture("../assets/crate.jpg", "diffuse");
@@ -214,15 +221,15 @@ int main(void)
 
     // cube positions
     glm::vec3 cratePositions[] = {
-        glm::vec3(0.0f, -0.5f,  3.0f),
-        glm::vec3(0.0f, -0.5f, 2.0f),
-        glm::vec3(0.0f, -0.5f, 1.0f),
-        glm::vec3(0.0f, -0.5f, 0.0f),
+        glm::vec3(-4.0f, -0.6f, -5.0f),
+        glm::vec3(-2.0f, -0.6f, -5.0f),
+        glm::vec3(0.0f, -0.6f, -5.0f),
+        glm::vec3(2.0f, -0.6f, -5.0f),
     };
 
     // Add cube to objects vector
     object.name = "crate";
-    for (unsigned int i = 0; i < cratePositions->length(); i++)
+    for (unsigned int i = 0; i <= cratePositions->length(); i++)
     {
         object.position = cratePositions[i];
         object.rotation = glm::vec3(0.0f, 1.0f, 0.0f);
@@ -254,38 +261,38 @@ int main(void)
 
     //WALLS
 
-    //glm::vec3 wallPositions[] = {
-    // glm::vec3(0.0f,  4.0f,  -8.0f),
-    // glm::vec3(0.0f, 4.0f, 8.0f),
-    //};
+    glm::vec3 wallPositions[] = {
+     glm::vec3(0.0f,  4.0f,  -8.0f),
+     //glm::vec3(0.0f, 4.0f, 8.0f),
+    };
 
-    //glm::vec3 wallRotations[] = {
-    // glm::vec3(1.0f,  0.0f,  0.0f),
-    // glm::vec3(-1.0f, 0.0f, 0.0f),
-    //};
-    ////Load Wall
-    //Model wall("../assets/plane.obj");
-    //wall.addTexture("../assets/bricks_diffuse.png", "diffuse");
-    //wall.addTexture("../assets/bricks_normal.png", "normal");
-    //wall.addTexture("../assets/bricks_specular.png", "specular");
+    glm::vec3 wallRotations[] = {
+     glm::vec3(1.0f,  0.0f,  0.0f),
+     //glm::vec3(-1.0f, 0.0f, 0.0f),
+    };
+    //Load Wall
+    Model wall("../assets/plane.obj");
+    wall.addTexture("../assets/bricks_diffuse.png", "diffuse");
+    wall.addTexture("../assets/bricks_normal.png", "normal");
+    wall.addTexture("../assets/bricks_specular.png", "specular");
 
-    ////Wall properties
-    //wall.ka = 0.2f;
-    //wall.kd = 1.0f;
-    //wall.ks = 1.0f;
-    //wall.Ns = 20.0f;
+    //Wall properties
+    wall.ka = 0.2f;
+    wall.kd = 1.0f;
+    wall.ks = 1.0f;
+    wall.Ns = 20.0f;
 
-    ////Add wall model to objects vector
+    //Add wall model to objects vector
 
-    //object.name = "wall";
-    //for (unsigned int i = 0; i <= wallPositions->length(); i++)
-    //{
-    //    object.position = wallPositions[i];
-    //    object.rotation = wallRotations[i];
-    //    object.scale = glm::vec3(3.0f, 3.0f, 3.0f);
-    //    object.angle = Maths::radians(90.0f);
-    //    objects.push_back(object);
-    //}
+    object.name = "wall";
+    for (unsigned int i = 0; i <= wallPositions->length(); i++)
+    {
+        object.position = wallPositions[i];
+        object.rotation = wallRotations[i];
+        object.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+        object.angle = Maths::radians(90.0f);
+        objects.push_back(object);
+    }
 
     glm::vec3 flippedWallPositions[] = {
     //glm::vec3(-8.0f, 4.0f, 0.0f),
@@ -355,6 +362,7 @@ int main(void)
     object.angle = 0.0f;
     object.name = "car";
     objects.push_back(object);
+    
 
 
     Model streetlamp("../assets/streetlamp.obj");
@@ -375,8 +383,16 @@ int main(void)
     object.angle = Maths::radians(180.0f);
     object.name = "streetlamp";
     objects.push_back(object);
-
-
+    object.name = "";
+    object.position = glm::vec3(5.0f, 0.0f, 0.0f);
+    object.scale = glm::vec3(1.0f, 1.0f, 1.0f);
+    objects.push_back(object);
+    object.position = glm::vec3(5.0f, 1.0f, 0.0f);
+    objects.push_back(object);
+    object.position = glm::vec3(5.0f, 2.0f, 0.0f);
+    objects.push_back(object);
+    object.position = glm::vec3(5.0f, 3.0f, 0.0f);
+    objects.push_back(object);
 
     // Create VAO, VBO, and EBO for the skybox
     unsigned int skyboxVAO, skyboxVBO, skyboxEBO;
@@ -444,7 +460,11 @@ int main(void)
             stbi_image_free(data);
         }
     }
-
+    float switchTime = 1.0f;
+    float lightMoveAmount = 0.0f;
+    std::random_device rd;  // a seed source for the random number engine
+    std::mt19937 gen(rd()); // mersenne_twister_engine seeded with rd()
+    std::uniform_real_distribution<> random(0.0f, 1.0f);
 
     // Render loop
     while (!glfwWindowShouldClose(window))
@@ -455,6 +475,7 @@ int main(void)
         previousTime = time;
 
         // Get inputs
+
         keyboardInput(window);
         mouseInput(window);
 
@@ -479,7 +500,7 @@ int main(void)
         //camera.calculateMatrices();
          
         //Quaternion 
-        camera.quaternionCamera(thirdCamera);
+        camera.quaternionCamera(thirdCamera, fourthCamera);
 
 
         // Activate shader
@@ -495,9 +516,9 @@ int main(void)
             glm::mat4 translate = Maths::translate(objects[i].position);
             glm::mat4 scale = Maths::scale(objects[i].scale);
             glm::mat4 rotate;
-            if (objects[i].name == "teapot")
+            if (objects[i].name == "specialTeapot")
             { 
-                if (glm::distance(camera.eye, objects[i].position) <= 2)
+                if (glm::distance(camera.eye, objects[i].position) <= 3)
                 {
                     objects[i].angle = Maths::radians(50.0f);
                 }
@@ -505,15 +526,68 @@ int main(void)
                 {
                     objects[i].angle = 0.0f;
                 }
+                if (glm::distance(camera.eye, objects[i].position) <= 2)
+                {
+                    objects[i].position.y += 0.05f * deltaTime;
+                    if (objects[i].position.y >= 4)
+                    {
+                        objects[i].position.y = -0.2f;
+                    }
+                }
+ 
                 rotate = Maths::rotate(objects[i].angle * glfwGetTime(), objects[i].rotation);
             }
             else if (objects[i].name == "player" && thirdCamera)
             {
                 rotate = Maths::rotate(-camera.yaw, glm::vec3(0.0f, 1.0f, 0.0f)) * Maths::rotate(camera.pitch, glm::vec3(1.0f, 0.0f, 0.0f));
+            }  
+            else if (objects[i].name == "player" && fourthCamera)
+            {
+                rotate = Maths::rotate(-playerYaw, glm::vec3(0.0f, 1.0f, 0.0f));
             }
             else
             {
                 rotate = Maths::rotate(objects[i].angle, objects[i].rotation);
+            }
+
+            if (objects[i].name == "streetlamp")
+            {
+                 if (glm::distance(camera.eye, objects[i].position) <= 5)
+                 {
+                     switchTime -= deltaTime;
+
+                     if (switchTime <= 0)
+                     {
+                         lightSources.get("streetLight").colour = glm::vec3(random(gen), random(gen), random(gen));
+                         switchTime = 1.0f;
+                     }
+
+                     lightSources.get("streetLight").direction = glm::vec3(lightMoveAmount, -1.0f, 0.0f);
+                     if (lightMoveAmount < -2)
+                     {
+                         lightMoveAmount = 0.0f;
+                     }
+                     else
+                     {
+                         lightMoveAmount -= 0.1f * deltaTime;
+                     }
+                 }
+            }
+
+            if (objects[i].name == "car")
+            {
+                if (glm::distance(camera.eye, objects[i].position) <= 5)
+                {
+                    switchTime -= deltaTime;
+
+                    if (switchTime <= 0)
+                    {
+                        glm::vec3 colour = lightSources.get("redLight").colour;
+                        lightSources.get("redLight").colour = lightSources.get("blueLight").colour;
+                        lightSources.get("blueLight").colour = colour;
+                        switchTime = 1.0f;
+                    }
+                }
             }
 
             glm::mat4 model = translate * rotate * scale;
@@ -528,11 +602,14 @@ int main(void)
             if (objects[i].name == "teapot")
                 teapot.draw(shaderID);
 
+            if (objects[i].name == "specialTeapot")
+                teapot.draw(shaderID);
+
             if (objects[i].name == "floor")
                 floor.draw(shaderID);
 
-            /*if (objects[i].name == "wall")
-                wall.draw(shaderID);*/
+            if (objects[i].name == "wall")
+                wall.draw(shaderID);
 
             if (objects[i].name == "flippedWall")
                 flippedWall.draw(shaderID);
@@ -547,8 +624,8 @@ int main(void)
             {
                 cube.draw(shaderID);
             }
-
-            if (objects[i].name == "player" && thirdCamera)
+            
+            if (objects[i].name == "player" && (thirdCamera || fourthCamera))
             {
                 objects[i].position = camera.eye - glm::vec3(0.0f, 0.5f, 0.0f);
                 player.draw(shaderID);
@@ -557,7 +634,6 @@ int main(void)
             if (objects[i].name != "player")
             checkCollision(camera, objects[i]);
         }
-
         // Draw light sources
         lightSources.draw(lightShaderID, camera.view, camera.projection, sphere);
 
@@ -605,16 +681,33 @@ void keyboardInput(GLFWwindow* window)
         glfwSetWindowShouldClose(window, true);
 
     // Move the camera using WSAD keys
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS && fourthCamera)
+    {
+        camera.eye += 5.0f * deltaTime * glm::vec3(cos(playerYaw - 1.5), 0, sin(playerYaw - 1.5));
+    }
+    else if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         camera.eye += 5.0f * deltaTime * camera.front;
 
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS && fourthCamera)
+    {
+        camera.eye -= 5.0f * deltaTime * glm::vec3(cos(playerYaw - 1.5), 0, sin(playerYaw - 1.5));
+    }
+    else if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
         camera.eye -= 5.0f * deltaTime * camera.front;
 
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS && fourthCamera)
+    {
+        playerYaw -= 2.0f *deltaTime;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
         camera.eye -= 5.0f * deltaTime * camera.right;
+        
 
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS && fourthCamera)
+    {
+        playerYaw += 2.0f * deltaTime;
+    }
+    else if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         camera.eye += 5.0f * deltaTime * camera.right;
 
     if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && camera.jumping == false)
@@ -624,10 +717,24 @@ void keyboardInput(GLFWwindow* window)
     }
 
     if (glfwGetKey(window, GLFW_KEY_1) == GLFW_PRESS)
+    {
         thirdCamera = false;
+        fourthCamera = false;
+    }
+        
 
     if (glfwGetKey(window, GLFW_KEY_2) == GLFW_PRESS)
+    {
         thirdCamera = true;
+        fourthCamera = false;
+    }
+
+    if (glfwGetKey(window, GLFW_KEY_3) == GLFW_PRESS)
+    {
+        thirdCamera = false;
+        fourthCamera = true;
+    }
+        
 
 }
 
@@ -651,7 +758,10 @@ void mouseInput(GLFWwindow* window)
 void checkCollision(Camera& camera, Object& obj1)
 {
     float offset = 0.1;
-    if (glm::distance(camera.eye, obj1.position) < 0.5)
+    float distance = 0.5f;
+    if (obj1.name == "car")
+        distance = 2.0f;
+    if (glm::distance(camera.eye, obj1.position) < distance)
     {
         if (camera.eye.x < obj1.position.x)
         {
@@ -670,6 +780,24 @@ void checkCollision(Camera& camera, Object& obj1)
             camera.eye.z += offset;
         }
     };
+
+
+    if (camera.eye.x >= 7.7f )
+    {
+        camera.eye.x -= offset;
+    }
+    if (camera.eye.x <= -10.0f)
+    {
+        camera.eye.x += offset;
+    }
+    if (camera.eye.z >= 10.0f)
+    {             
+        camera.eye.z -= offset;
+    }              
+    if (camera.eye.z <= -7.7f)
+    {              
+        camera.eye.z += offset;
+    }
 
 };
 

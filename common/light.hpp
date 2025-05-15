@@ -6,6 +6,7 @@
 
 struct LightSource
 {
+    std::string name;
     glm::vec3 position;
     glm::vec3 colour;
     glm::vec3 direction;
@@ -23,18 +24,21 @@ public:
     unsigned int lightShaderID;
 
     // Add lightSources
-    void addPointLight(const glm::vec3 position, const glm::vec3 colour,
+    void addPointLight(const std::string name, const glm::vec3 position, const glm::vec3 colour,
         const float constant, const float linear,
         const float quadratic);
-    void addSpotLight(const glm::vec3 position, const glm::vec3 direction,
+    void addSpotLight(const std::string name, const glm::vec3 position, const glm::vec3 direction,
         const glm::vec3 colour, const float constant,
         const float linear, const float quadratic,
         const float cosPhi);
-    void addDirectionalLight(const glm::vec3 direction, const glm::vec3 colour);
+    void addDirectionalLight(const std::string name, const glm::vec3 direction, const glm::vec3 colour);
 
     // Send to shader
     void toShader(unsigned int shaderID, glm::mat4 view);
 
     // Draw light source
     void draw(unsigned int shaderID, glm::mat4 view, glm::mat4 projection, Model lightModel);
+
+    //Retrieve light source
+    LightSource& get(const std::string name);
 };

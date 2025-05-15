@@ -28,7 +28,7 @@ void Camera::calculateCameraVectors()
 	right = Maths::normalize(Maths::cross(front, worldUp));
 	up = Maths::cross(right, front);
 }
-void Camera::quaternionCamera(bool thirdCamera)
+void Camera::quaternionCamera(bool thirdCamera, bool fourthCamera)
 {
 	// Calculate camera orientation quaternion from the Euler angles
 	Quaternion newOrientation(-pitch, yaw);
@@ -40,7 +40,7 @@ void Camera::quaternionCamera(bool thirdCamera)
 	view = orientation.matrix() * Maths::translate(-eye);
 
 	//3D Camera
-	if (thirdCamera)
+	if (thirdCamera || fourthCamera)
 	{
 		view = Maths::translate(cameraOffset) * view;
 	}

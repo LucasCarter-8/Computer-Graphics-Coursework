@@ -1,10 +1,12 @@
 #include <common/light.hpp>
+#include <common/maths.hpp>
 
-void Light::addPointLight(const glm::vec3 position, const glm::vec3 colour,
+void Light::addPointLight(const std::string name, const glm::vec3 position, const glm::vec3 colour,
     const float constant, const float linear,
     const float quadratic)
 {
     LightSource light;
+    light.name = name;
     light.position = position;
     light.colour = colour;
     light.constant = constant;
@@ -14,12 +16,13 @@ void Light::addPointLight(const glm::vec3 position, const glm::vec3 colour,
     lightSources.push_back(light);
 }
 
-void Light::addSpotLight(const glm::vec3 position, const glm::vec3 direction,
+void Light::addSpotLight(const std::string name, const glm::vec3 position, const glm::vec3 direction,
     const glm::vec3 colour, const float constant,
     const float linear, const float quadratic,
     const float cosPhi)
 {
     LightSource light;
+    light.name = name;
     light.position = position;
     light.direction = direction;
     light.colour = colour;
@@ -31,9 +34,10 @@ void Light::addSpotLight(const glm::vec3 position, const glm::vec3 direction,
     lightSources.push_back(light);
 }
 
-void Light::addDirectionalLight(const glm::vec3 direction, const glm::vec3 colour)
+void Light::addDirectionalLight(const std::string name, const glm::vec3 direction, const glm::vec3 colour)
 {
     LightSource light;
+    light.name = name;
     light.direction = direction;
     light.colour = colour;
     light.type = 3;
@@ -71,8 +75,8 @@ void Light::draw(unsigned int shaderID, glm::mat4 view, glm::mat4 projection, Mo
             continue;
 
         // Calculate model matrix
-        glm::mat4 translate = glm::translate(glm::mat4(1.0f), lightSources[i].position);
-        glm::mat4 scale = glm::scale(glm::mat4(1.0f), glm::vec3(0.1f));
+        glm::mat4 translate = Maths::translate(lightSources[i].position);
+        glm::mat4 scale = Maths::scale(glm::vec3(0.1f));
         glm::mat4 model = translate * scale;
 
         // Send the MVP and MV matrices to the vertex shader
@@ -84,6 +88,17 @@ void Light::draw(unsigned int shaderID, glm::mat4 view, glm::mat4 projection, Mo
 
         // Draw light source
         lightModel.draw(shaderID);
+    }
+}
+
+LightSource& Light::get(const std::string name)
+{
+    for(LightSource& source : lightSources)
+    {
+        if (source.name == name)
+        {
+            return source;
+        }
     }
 }
 
